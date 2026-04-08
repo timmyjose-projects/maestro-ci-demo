@@ -4,9 +4,9 @@
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
+    "setup": "bash scripts/setup.sh",
+    "android": "npx expo run:android",
+    "ios": "npx pod-install && npx expo run:ios"
   },
   "dependencies": {
     "expo": "~54.0.33",

@@ -1,0 +1,5 @@
+appId: com.timmyjose.maestrocidemo
+--- 
+- launchApp:
+    clearState: true
+    clearKeychain: true
