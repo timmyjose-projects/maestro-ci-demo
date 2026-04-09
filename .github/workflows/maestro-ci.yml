@@ -40,6 +40,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: yarn
+          cache-dependency-path: app/yarn.lock
 
       - name: Install JS dependencies
         working-directory: ${{ env.APP_DIR }}
@@ -60,31 +61,31 @@ jobs:
           api-level: 35
           arch: x86_64
           profile: pixel_7
+          cores: 2
           ram-size: 4096M
           heap-size: 1024M
           disk-size: 6000M
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          emulator-options: >-
+            -no-window
+            -gpu swiftshader_indirect
+            -no-snapshot
+            -noaudio
+            -no-boot-anim
+            -no-metrics
           disable-animations: true
           script: |
-            set -euxo pipefail
-
-            cd $APP_DIR
-
-            nohup npx expo start --dev-client > /tmp/expo-android.log 2>&1 &
+            adb start-server
+            adb wait-for-device
+            adb shell getprop sys.boot_completed
             sleep 30
-
             adb devices
-            adb reverse tcp:8081 tcp:8081 || true
-
-            npx expo run:android --variant debug --no-bundler
-
-            mkdir -p maestro-artifacts
-            adb exec-out screencap -p > maestro-artifacts/final-android-screen.png || true
-
+            cd app/packages/demo && nohup npx expo start --dev-client --host localhost > /tmp/expo-android.log 2>&1 &
+            sleep 30
+            adb reverse tcp:8081 tcp:8081
+            cd app/packages/demo && npx expo run:android --variant debug --no-bundler
+            mkdir -p app/packages/demo/maestro-artifacts
             maestro --version
-            maestro -p android test demo/maestro/basic.android.yml \
-              --format junit \
-              --output maestro-artifacts/android-maestro-junit.xml
+            maestro -p android test app/packages/demo/maestro/basic.android.yml  --format junit  --output app/packages/demo/maestro-artifacts/android-maestro-junit.xml  --test-output-dir app/packages/demo/maestro-artifacts/test-output
 
       - name: Upload Android artifacts
         if: always()
@@ -92,13 +93,14 @@ jobs:
         with:
           name: android-maestro-artifacts
           path: |
-            /tmp/expo-android.log
             ${{ env.APP_DIR }}/maestro-artifacts
+            ${{ env.APP_DIR }}/maestro-artifacts/test-output
           if-no-files-found: warn
 
   ios-maestro:
     name: iOS Maestro
     runs-on: macos-latest
+    if: false # temporarily disabled until we can get the simulator working
 
     env:
       SIMULATOR_NAME: iPhone 16
@@ -118,6 +120,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: yarn
+          cache-dependency-path: app/yarn.lock
 
       - name: Select latest Xcode
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
