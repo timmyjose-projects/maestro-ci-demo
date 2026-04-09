@@ -2,9 +2,12 @@ appId: com.timmyjose.maestrocidemo
 --- 
 - launchApp:
     clearState: true
+- startRecording: basic_android
 - waitForAnimationToEnd
 - assertVisible:
     id: 'app-text-1'
 - takeScreenshot:
     path: App
     label: Screenshot of the App landing page
+- stopRecording
+- stopApp: com.timmyjose.maestrocidemo
