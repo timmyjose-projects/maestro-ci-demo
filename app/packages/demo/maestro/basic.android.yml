@@ -3,7 +3,8 @@ appId: com.timmyjose.maestrocidemo
 - launchApp:
     clearState: true
 - waitForAnimationToEnd
-- assertVisible: "Open up App.tsx to start working on your app!"
+- assertVisible:
+    id: 'app-text-1'
 - takeScreenshot:
     path: App
     label: Screenshot of the App landing page
