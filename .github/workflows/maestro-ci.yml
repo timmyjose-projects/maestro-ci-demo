@@ -100,10 +100,9 @@ jobs:
   ios-maestro:
     name: iOS Maestro
     runs-on: macos-latest
-    if: false # temporarily disabled until we can get the simulator working
 
     env:
-      SIMULATOR_NAME: iPhone 16
+      SIMULATOR_NAME: iPhone 16 Pro
 
     steps:
       - name: Checkout
@@ -162,15 +161,31 @@ jobs:
           open -a Simulator
           xcrun simctl bootstatus "$UDID" -b
 
-      - name: Build and install iOS debug app
+      - name: Build iOS simulator app
         working-directory: ${{ env.APP_DIR }}
         run: |
           set -euxo pipefail
 
-          nohup npx expo start --dev-client > /tmp/expo-ios.log 2>&1 &
+          export EXPO_NO_INTERACTIVE=1
+          nohup npx expo start --host localhost > /tmp/expo-ios.log 2>&1 &
           sleep 30
 
           npx expo run:ios --device "${SIMULATOR_NAME}" --no-bundler
+
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -type d -name "maestrocidemo.app" | grep "Debug-iphonesimulator" | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Could not find built maestrocidemo.app in DerivedData"
+            exit 1
+          fi
+          echo "IOS_APP_PATH=$APP_PATH" >> $GITHUB_ENV
+
+      - name: Install and launch iOS app on simulator
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          set -euxo pipefail
+
+          xcrun simctl install "$SIMULATOR_UDID" "$IOS_APP_PATH"
+          xcrun simctl launch "$SIMULATOR_UDID" com.timmyjose.maestrocidemo
 
       - name: Run Maestro iOS test
         working-directory: ${{ env.APP_DIR }}
@@ -178,12 +193,8 @@ jobs:
           set -euxo pipefail
 
           mkdir -p maestro-artifacts
-          xcrun simctl io "$SIMULATOR_UDID" screenshot maestro-artifacts/final-ios-screen.png || true
-
           maestro --version
-          maestro -p ios test demo/maestro/basic.ios.yml \
-            --format junit \
-            --output maestro-artifacts/ios-maestro-junit.xml
+          maestro -p ios test maestro/basic.ios.yml --format junit --output maestro-artifacts/ios-maestro-junit.xml --test-output-dir maestro-artifacts/test-output
 
       - name: Upload iOS artifacts
         if: always()
@@ -193,4 +204,5 @@ jobs:
           path: |
             /tmp/expo-ios.log
             ${{ env.APP_DIR }}/maestro-artifacts
+            ${{ env.APP_DIR }}/maestro-artifacts/test-output
           if-no-files-found: warn

@@ -3,3 +3,12 @@ appId: com.timmyjose.maestrocidemo
 - launchApp:
     clearState: true
     clearKeychain: true
+- startRecording: basic_ios
+- waitForAnimationToEnd
+- assertVisible:
+    id: 'app-text-1'
+- takeScreenshot:
+    path: App
+    label: Screenshot of the App landing page
+- stopRecording
+- stopApp: com.timmyjose.maestrocidemo
