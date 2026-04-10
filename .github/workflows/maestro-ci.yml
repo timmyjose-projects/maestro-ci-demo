@@ -191,9 +191,9 @@ jobs:
         run: |
           set -euxo pipefail
 
-          mkdir -p maestro-artifacts
+          mkdir -p app/packages/demo/maestro-artifacts
           maestro --version
-          maestro -p ios test app/packages/demo/maestro/basic.ios.yml --format junit --output maestro-artifacts/ios-maestro-junit.xml --test-output-dir maestro-artifacts/test-output
+          maestro -p ios test app/packages/demo/maestro/basic.ios.yml --format junit --output app/packages/demo/maestro-artifacts/ios-maestro-junit.xml --test-output-dir app/packages/demo/maestro-artifacts/test-output
 
       - name: Upload iOS artifacts
         if: always()
