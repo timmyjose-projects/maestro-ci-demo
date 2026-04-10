@@ -188,13 +188,12 @@ jobs:
           xcrun simctl launch "$SIMULATOR_UDID" com.timmyjose.maestrocidemo
 
       - name: Run Maestro iOS test
-        working-directory: ${{ env.APP_DIR }}
         run: |
           set -euxo pipefail
 
           mkdir -p maestro-artifacts
           maestro --version
-          maestro -p ios test maestro/basic.ios.yml --format junit --output maestro-artifacts/ios-maestro-junit.xml --test-output-dir maestro-artifacts/test-output
+          maestro -p ios test app/packages/demo/maestro/basic.ios.yml --format junit --output maestro-artifacts/ios-maestro-junit.xml --test-output-dir maestro-artifacts/test-output
 
       - name: Upload iOS artifacts
         if: always()
@@ -202,7 +201,6 @@ jobs:
         with:
           name: ios-maestro-artifacts
           path: |
-            /tmp/expo-ios.log
             ${{ env.APP_DIR }}/maestro-artifacts
             ${{ env.APP_DIR }}/maestro-artifacts/test-output
           if-no-files-found: warn
