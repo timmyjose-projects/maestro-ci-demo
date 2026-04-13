@@ -1,0 +1,3 @@
+[workspace]
+resover = "3"
+members = ["pkg/calculator"]
