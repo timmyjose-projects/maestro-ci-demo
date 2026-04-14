@@ -1,0 +1,1 @@
+export const BASE_BACKEND_URL  = process.env.EXPO_PUBLIC_BASE_BACKEND_URL ?? 'localhost:9999'

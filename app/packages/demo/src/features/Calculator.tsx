@@ -1,23 +1,24 @@
-import { useState } from "react"
-import { Pressable, Text, TextInput, View } from "react-native"
-import { NavigationProp, useNavigation } from "@react-navigation/native"
+import { useState } from 'react'
+import { Pressable, Text, TextInput, View } from 'react-native'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
 
-import Styles from "../styles"
-import { RootStackParamList } from "../App"
+import Styles from '../styles'
+import { RootStackParamList } from '../App'
+import { sendRequest } from '../network/comm'
 
-type Operation = "add" | "sub" | "mul" | "div"
+export type Operation = 'add' | 'sub' | 'mul' | 'div'
 
 const Calculator = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
-  const [firstNumber, setFirstNumber] = useState("")
-  const [secondNumber, setSecondNumber] = useState("")
+  const [firstNumber, setFirstNumber] = useState('')
+  const [secondNumber, setSecondNumber] = useState('')
   const [result, setResult] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const parseInputs = () => {
-    if (firstNumber.trim() === "" || secondNumber.trim() === "") {
-      setError("Please enter both numbers")
+    if (firstNumber.trim() === '' || secondNumber.trim() === '') {
+      setError('Please enter both numbers')
       setResult(null)
       return null
     }
@@ -26,7 +27,7 @@ const Calculator = () => {
     const b = Number(secondNumber)
 
     if (Number.isNaN(a) || Number.isNaN(b)) {
-      setError("Please enter valid numbers")
+      setError('Please enter valid numbers')
       setResult(null)
       return null
     }
@@ -34,7 +35,15 @@ const Calculator = () => {
     return { a, b }
   }
 
-  const calculate = (operation: Operation) => {
+  const handleRes = async (operation: Operation, res: any) => {
+    if (res === null) {
+      setError(`backend error: ${operation}`)
+    } else {
+      setResult(res.res)
+    }
+  }
+
+  const calculate = async (operation: Operation) => {
     const parsed = parseInputs()
     if (!parsed) return
 
@@ -42,54 +51,58 @@ const Calculator = () => {
     setError(null)
 
     switch (operation) {
-      case "add":
-        setResult(a + b)
+      case 'add':
+        const sum = await sendRequest('add', { x: a, y: b})
+        handleRes(operation, sum)
         break
-      case "sub":
-        setResult(a - b)
+      case 'sub':
+        const diff = await sendRequest('sub', { x: a, y: b})
+        handleRes(operation, diff)
         break
-      case "mul":
-        setResult(a * b)
+      case 'mul':
+        const prod = await sendRequest('mul', { x: a, y: b})
+        handleRes(operation, prod)
         break
-      case "div":
+      case 'div':
         if (b === 0) {
-          setError("Cannot divide by zero")
+          setError('Cannot divide by zero')
           setResult(null)
           return
         }
-        setResult(a / b)
+        const quot = await sendRequest('div', { x: a, y: b})
+        handleRes(operation, quot)
         break
     }
   }
 
   const actions: Array<{ label: string; op: Operation }> = [
-    { label: "Add", op: "add" },
-    { label: "Sub", op: "sub" },
-    { label: "Mul", op: "mul" },
-    { label: "Div", op: "div" },
+    { label: 'Add', op: 'add' },
+    { label: 'Sub', op: 'sub' },
+    { label: 'Mul', op: 'mul' },
+    { label: 'Div', op: 'div' },
   ]
 
   return (
     <View style={Styles.container}>
       <TextInput
-        testID="first-number-input"
+        testID='first-number-input'
         style={Styles.textInput}
-        placeholder="Enter the first number"
-        keyboardType="numeric"
+        placeholder='Enter the first number'
+        keyboardType='numeric'
         value={firstNumber}
         onChangeText={setFirstNumber}
       />
 
       <TextInput
-        testID="second-number-input"
+        testID='second-number-input'
         style={Styles.textInput}
-        placeholder="Enter the second number"
-        keyboardType="numeric"
+        placeholder='Enter the second number'
+        keyboardType='numeric'
         value={secondNumber}
         onChangeText={setSecondNumber}
       />
 
-      <View style={{ flexDirection: "row", gap: 8 }}>
+      <View style={{ flexDirection: 'row', gap: 8 }}>
         {actions.map(action => (
           <Pressable
             key={action.op}
@@ -102,13 +115,13 @@ const Calculator = () => {
         ))}
       </View>
 
-      {error && <Text testID="calculator-error">{error}</Text>}
-      {result !== null && <Text testID="calculator-result">Result: {result}</Text>}
+      {error && <Text testID='calculator-error'>{error}</Text>}
+      {result !== null && <Text testID='calculator-result'>Result: {result}</Text>}
 
       <Pressable
-        testID="home-button"
+        testID='home-button'
         style={Styles.button}
-        onPress={() => navigation.navigate("Home")}
+        onPress={() => navigation.navigate('Home')}
       >
         <Text>Home</Text>
       </Pressable>

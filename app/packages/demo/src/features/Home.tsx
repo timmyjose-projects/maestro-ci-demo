@@ -1,7 +1,7 @@
-import { Pressable, Text, View } from "react-native"
-import Styles from "../styles"
-import { NavigationProp, useNavigation } from "@react-navigation/native"
-import { RootStackParamList } from "../App"
+import { Pressable, Text, View } from 'react-native'
+import Styles from '../styles'
+import { NavigationProp, useNavigation } from '@react-navigation/native'
+import { RootStackParamList } from '../App'
 
 const Home = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>()
@@ -10,7 +10,7 @@ const Home = () => {
     <View style={Styles.container}>
       <Pressable
       style={Styles.button}
-      onPress={() => navigation.navigate("Calculator")}
+      onPress={() => navigation.navigate('Calculator')}
       >
         <Text>Calculator</Text>
       </Pressable>
