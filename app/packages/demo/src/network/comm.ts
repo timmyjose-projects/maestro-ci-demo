@@ -12,7 +12,7 @@ type CalcResponse = {
 
 export const sendRequest = async (oper: Operation, payload: CalcInput): Promise<CalcResponse | null> => {
   try {
-    const url = `http://${BASE_BACKEND_URL}/${oper}`
+    const url = `${BASE_BACKEND_URL}/${oper}`
     console.log(`Calling url = ${url}`)
 
     const res = fetch(url, {
@@ -21,7 +21,7 @@ export const sendRequest = async (oper: Operation, payload: CalcInput): Promise<
       headers: { 'Content-Type' : 'application/json'}
     })
     .then(resp => resp.json())
-    .catch(err => null)
+    .catch(err => { console.error(err); return null })
 
     return res
   } catch (err: any) {

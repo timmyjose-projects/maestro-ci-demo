@@ -2,6 +2,7 @@ import { Pressable, Text, View } from 'react-native'
 import Styles from '../styles'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { RootStackParamList } from '../App'
+import { useEffect } from 'react'
 
 const Home = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>()
