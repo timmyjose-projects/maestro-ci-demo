@@ -3,7 +3,16 @@ appId: com.timmyjose.maestrocidemo
 - launchApp:
     clearState: true
 - startRecording: basic_android
+- runFlow:
+    when:
+      visible: 'Quickstep'
+    commands:
+      - tapOn: 'Wait'
 - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: home-view
+    timeout: 10000
 - assertVisible:
     id: 'home-view'
 - assertVisible:

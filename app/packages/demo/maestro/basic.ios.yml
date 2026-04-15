@@ -5,6 +5,10 @@ appId: com.timmyjose.maestrocidemo
     clearKeychain: true
 - startRecording: basic_ios
 - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: home-view
+    timeout: 10000
 - assertVisible:
     id: 'home-view'
 - assertVisible:
