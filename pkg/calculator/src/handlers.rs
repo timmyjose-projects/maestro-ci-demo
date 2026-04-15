@@ -1,7 +1,19 @@
-use actix_web::{post, web};
+use actix_web::{get, post, web};
 use serde::{Deserialize, Serialize};
 
 use crate::calc::{add, div, mul, sub};
+
+#[derive(Debug, Clone, Serialize)]
+pub struct HealthStatus {
+    status: String,
+}
+
+#[get("/health")]
+pub async fn health() -> actix_web::Result<web::Json<HealthStatus>> {
+    Ok(web::Json(HealthStatus {
+        status: String::from("ok"),
+    }))
+}
 
 #[derive(Debug, Copy, Clone, Deserialize)]
 pub struct CalcInput {

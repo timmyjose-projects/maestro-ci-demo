@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pressable, Text, TextInput, View } from 'react-native'
+import { KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from 'react-native'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
 
 import Styles from '../styles'
@@ -83,7 +83,7 @@ const Calculator = () => {
   ]
 
   return (
-    <View style={Styles.container}>
+    <KeyboardAvoidingView style={Styles.container} behavior={Platform.OS === 'android' ? 'height' : 'padding'}>
       <TextInput
         testID='first-number-input'
         style={Styles.textInput}
@@ -125,7 +125,7 @@ const Calculator = () => {
       >
         <Text>Home</Text>
       </Pressable>
-    </View>
+    </KeyboardAvoidingView>
   )
 }
 

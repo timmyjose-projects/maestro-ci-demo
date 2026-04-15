@@ -1,7 +1,7 @@
 use std::env;
 
 use actix_web::{App, HttpServer};
-use calculator::handlers::{handle_add, handle_div, handle_mul, handle_sub};
+use calculator::handlers::{handle_add, handle_div, handle_mul, handle_sub, health};
 use log::info;
 
 #[tokio::main]
@@ -15,6 +15,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
+            .service(health)
             .service(handle_add)
             .service(handle_sub)
             .service(handle_mul)

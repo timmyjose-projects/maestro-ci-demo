@@ -7,8 +7,9 @@ const Home = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>()
 
   return (
-    <View style={Styles.container}>
+    <View style={Styles.container} testID='home-view'>
       <Pressable
+      testID='home-pressable-calculator'
       style={Styles.button}
       onPress={() => navigation.navigate('Calculator')}
       >

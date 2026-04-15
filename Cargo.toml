@@ -1,5 +1,5 @@
 [workspace]
-resover = "3"
+resolver = "3"
 members = ["pkg/calculator"]
 
 [workspace.dependencies]
