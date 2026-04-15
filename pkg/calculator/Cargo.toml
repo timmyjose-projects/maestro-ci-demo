@@ -1,0 +1,13 @@
+[package]
+name = "calculator"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+actix-web = { workspace = true }
+env_logger = { workspace = true }
+eyre = { workspace = true }
+log.workspace = true
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }

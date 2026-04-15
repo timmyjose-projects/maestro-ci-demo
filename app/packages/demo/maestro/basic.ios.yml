@@ -5,8 +5,56 @@ appId: com.timmyjose.maestrocidemo
     clearKeychain: true
 - startRecording: basic_ios
 - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: home-view
+    timeout: 10000
 - assertVisible:
-    id: 'app-text-1'
+    id: 'home-view'
+- assertVisible:
+    id: 'home-pressable-calculator'
+- tapOn:
+    id: 'home-pressable-calculator'
+- assertVisible:
+    id: 'first-number-input'
+- tapOn:
+    id: 'first-number-input'
+- inputText:
+    text: '12'
+- assertVisible:
+    id: 'second-number-input'
+- tapOn:
+    id: 'second-number-input'
+- inputText:
+    text: '2'
+- assertVisible:
+    id: 'add-button'
+- tapOn:
+    id: 'add-button'
+- assertVisible:
+    text: 'Result: 14'
+- assertVisible:
+    id: 'sub-button'
+- tapOn:
+    id: 'sub-button'
+- assertVisible:
+    text: 'Result: 10'
+- assertVisible:
+    id: 'mul-button'
+- tapOn:
+    id: 'mul-button'
+- assertVisible:
+    text: 'Result: 24'
+- assertVisible:
+    id: 'div-button'
+- tapOn:
+    id: 'div-button'
+- assertVisible:
+    text: 'Result: 6'
+- assertVisible:
+    id: 'home-button'
+- tapOn:
+    id: 'home-button'
 - takeScreenshot:
     path: App
     label: Screenshot of the App landing page
