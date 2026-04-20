@@ -5,12 +5,28 @@ appId: com.timmyjose.maestrocidemo
     clearKeychain: true
 - startRecording: basic_ios
 - waitForAnimationToEnd
-- extendedWaitUntil:
-    visible:
-      id: home-view
-    timeout: 10000
-- assertVisible:
-    id: 'home-view'
+- runFlow:
+    when:
+      visible: '.*http://localhost.*'
+    commands:
+      - tapOn:
+          text: '.*http://localhost.*' 
+- retry:
+    maxRetries: 3
+    commands:
+      - runFlow:
+          when:
+            visible: '.*This is the developer menu.*' 
+          commands:
+            - swipe:
+                direction: DOWN
+      - waitForAnimationToEnd
+      - extendedWaitUntil:
+          visible:
+            id: home-view
+          timeout: 60000
+      - assertVisible:
+          id: 'home-view'
 - assertVisible:
     id: 'home-pressable-calculator'
 - tapOn:

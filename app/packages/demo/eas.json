@@ -1,0 +1,36 @@
+{
+  "cli": {
+    "version": ">= 16.26.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "autoIncrement": true,
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "maestro-android": {
+      "autoIncrement": true,
+      "extends": "development",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "maestro-ios-sim": {
+      "autoIncrement": true,
+      "extends": "development",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "autoIncrement": true
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
