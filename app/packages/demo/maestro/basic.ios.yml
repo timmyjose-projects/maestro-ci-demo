@@ -11,18 +11,22 @@ appId: com.timmyjose.maestrocidemo
     commands:
       - tapOn:
           text: '.*http://localhost.*' 
-- runFlow:
-    when:
-      visible: '.*This is the developer menu.*'
+- retry:
+    maxRetries: 3
     commands:
-      - swipe:
-          direction: DOWN
-- extendedWaitUntil:
-    visible:
-      id: home-view
-    timeout: 10000
-- assertVisible:
-    id: 'home-view'
+      - runFlow:
+          when:
+            visible: '.*This is the developer menu.*' 
+          commands:
+            - swipe:
+                direction: DOWN
+            - waitForAnimationToEnd
+            - extendedWaitUntil:
+                visible:
+                  id: home-view
+                timeout: 10000
+            - assertVisible:
+                id: 'home-view'
 - assertVisible:
     id: 'home-pressable-calculator'
 - tapOn:
