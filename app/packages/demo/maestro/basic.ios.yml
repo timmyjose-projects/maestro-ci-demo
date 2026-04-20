@@ -20,13 +20,13 @@ appId: com.timmyjose.maestrocidemo
           commands:
             - swipe:
                 direction: DOWN
-            - waitForAnimationToEnd
-            - extendedWaitUntil:
-                visible:
-                  id: home-view
-                timeout: 10000
-            - assertVisible:
-                id: 'home-view'
+      - waitForAnimationToEnd
+      - extendedWaitUntil:
+          visible:
+            id: home-view
+          timeout: 10000
+      - assertVisible:
+          id: 'home-view'
 - assertVisible:
     id: 'home-pressable-calculator'
 - tapOn:
