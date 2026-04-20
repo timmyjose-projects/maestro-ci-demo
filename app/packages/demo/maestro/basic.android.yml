@@ -3,11 +3,15 @@ appId: com.timmyjose.maestrocidemo
 - launchApp:
     clearState: true
 - startRecording: basic_android
-- runFlow:
-    when:
-      visible: 'Quickstep'
+- retry:
+    maxRetries: 3
     commands:
-      - tapOn: 'Wait'
+      - runFlow:
+          when:
+            visible: '.*Quickstep.*responding.*'
+          commands:
+            - tapOn: 'Wait'
+      - waitForAnimationToEnd
 - waitForAnimationToEnd
 - runFlow:
     when:
@@ -21,12 +25,21 @@ appId: com.timmyjose.maestrocidemo
     commands:
       - swipe:
           direction: DOWN
-- extendedWaitUntil:
-    visible:
-      id: home-view
-    timeout: 10000
-- assertVisible:
-    id: 'home-view'
+- retry:
+    maxRetries: 3
+    commands:
+      - runFlow:
+          when:
+            visible: '.*Quickstep.*responding.*'
+          commands:
+            - tapOn: 'Wait'
+      - waitForAnimationToEnd
+      - extendedWaitUntil:
+          visible:
+            id: home-view
+          timeout: 10000
+      - assertVisible:
+          id: 'home-view'
 - assertVisible:
     id: 'home-pressable-calculator'
 - tapOn:
