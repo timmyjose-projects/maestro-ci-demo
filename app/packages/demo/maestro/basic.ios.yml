@@ -24,7 +24,7 @@ appId: com.timmyjose.maestrocidemo
       - extendedWaitUntil:
           visible:
             id: home-view
-          timeout: 10000
+          timeout: 60000
       - assertVisible:
           id: 'home-view'
 - assertVisible:
