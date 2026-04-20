@@ -9,6 +9,18 @@ appId: com.timmyjose.maestrocidemo
     commands:
       - tapOn: 'Wait'
 - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: '.*http://10\.0\.2\.2.*'
+    commands:
+      - tapOn:
+          text: '.*http://10\.0\.2\.2.*'
+- runFlow:
+    when:
+      visible: '.*This is the developer menu.*'
+    commands:
+      - swipe:
+          direction: DOWN
 - extendedWaitUntil:
     visible:
       id: home-view

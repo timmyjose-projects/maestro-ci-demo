@@ -5,6 +5,18 @@ appId: com.timmyjose.maestrocidemo
     clearKeychain: true
 - startRecording: basic_ios
 - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: '.*http://localhost.*'
+    commands:
+      - tapOn:
+          text: '.*http://localhost.*' 
+- runFlow:
+    when:
+      visible: '.*This is the developer menu.*'
+    commands:
+      - swipe:
+          direction: DOWN
 - extendedWaitUntil:
     visible:
       id: home-view
