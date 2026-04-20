@@ -50,6 +50,12 @@ jobs:
           cache: yarn
           cache-dependency-path: app/yarn.lock
 
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
 
@@ -64,10 +70,25 @@ jobs:
         working-directory: ${{ env.APP_DIR }}
         run: yarn setup --clean
 
+      - name: Build Android app on EAS
+        working-directory: ${{ env.APP_DIR }}
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          set -euxo pipefail
+          EXPO_PUBLIC_BASE_BACKEND_URL=http://10.0.2.2:9999 eas build --platform android --profile maestro-android --non-interactive --wait --json > /tmp/eas-android-build.json
+          ANDROID_BUILD_URL=$(node -e 'const fs=require("fs");const data=JSON.parse(fs.readFileSync("/tmp/eas-android-build.json","utf8"));const out=Array.isArray(data)?data[0]:data;process.stdout.write(out?.artifacts?.buildUrl||"");')
+          if [ -z "$ANDROID_BUILD_URL" ]; then
+            echo "Could not parse Android build URL from EAS response"
+            cat /tmp/eas-android-build.json
+            exit 1
+          fi
+          curl -fL "$ANDROID_BUILD_URL" -o /tmp/maestro-android.apk
+
       - name: Install Maestro CLI
         run: |
           curl -fsSL "https://get.maestro.mobile.dev" | bash
-          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
       - name: Build calculator service
         run: cargo build --release -p calculator
@@ -76,7 +97,7 @@ jobs:
         run: |
           nohup ./target/release/calculator > /tmp/calculator.log 2>&1 &
 
-          for i in $(seq 1 60); do
+          for _ in $(seq 1 60); do
             if curl -fsS http://127.0.0.1:9999/health; then
               exit 0
             fi
@@ -113,10 +134,17 @@ jobs:
             cd app/packages/demo && EXPO_PUBLIC_BASE_BACKEND_URL=http://10.0.2.2:9999 nohup npx expo start --dev-client --host localhost > /tmp/expo-android.log 2>&1 &
             sleep 30
             adb reverse tcp:8081 tcp:8081
-            cd app/packages/demo && npx expo run:android --variant debug --no-bundler
+            adb install -r /tmp/maestro-android.apk
             mkdir -p app/packages/demo/maestro-artifacts
             maestro --version
             maestro -p android test app/packages/demo/maestro/basic.android.yml  --format junit  --output app/packages/demo/maestro-artifacts/android-maestro-junit.xml  --test-output-dir app/packages/demo/maestro-artifacts/test-output
+
+      - name: Collect Android logs
+        if: always()
+        run: |
+          mkdir -p ${{ env.APP_DIR }}/maestro-artifacts
+          cp /tmp/eas-android-build.json ${{ env.APP_DIR }}/maestro-artifacts/eas-android-build.json || true
+          cp /tmp/expo-android.log ${{ env.APP_DIR }}/maestro-artifacts/expo-android.log || true
 
       - name: Upload Android artifacts
         if: always()
@@ -152,6 +180,12 @@ jobs:
           cache: yarn
           cache-dependency-path: app/yarn.lock
 
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
 
@@ -177,7 +211,7 @@ jobs:
       - name: Install Maestro CLI
         run: |
           curl -fsSL "https://get.maestro.mobile.dev" | bash
-          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
       - name: Build calculator service
         run: cargo build --release -p calculator
@@ -187,7 +221,7 @@ jobs:
           nohup ./target/release/calculator > /tmp/calculator.log 2>&1 &
 
 
-          for i in $(seq 1 60); do
+          for _ in $(seq 1 60); do
             if curl -fsS http://127.0.0.1:9999/health; then
               exit 0
             fi
@@ -196,10 +230,6 @@ jobs:
           echo "Calculator service failed health check"
           cat /tmp/calculator.log || true
           exit 1
-
-      - name: Install CocoaPods
-        working-directory: ${{ env.APP_DIR }}/ios
-        run: pod install
 
       - name: Boot iOS simulator
         run: |
@@ -211,28 +241,41 @@ jobs:
             exit 1
           fi
 
-          echo "SIMULATOR_UDID=$UDID" >> $GITHUB_ENV
+          echo "SIMULATOR_UDID=$UDID" >> "$GITHUB_ENV"
           xcrun simctl boot "$UDID" || true
           open -a Simulator
           xcrun simctl bootstatus "$UDID" -b
 
-      - name: Build iOS simulator app
+      - name: Build iOS simulator app on EAS
         working-directory: ${{ env.APP_DIR }}
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
           set -euxo pipefail
 
-          export EXPO_NO_INTERACTIVE=1
-          EXPO_PUBLIC_BASE_BACKEND_URL=http://127.0.0.1:9999 nohup npx expo start --host localhost > /tmp/expo-ios.log 2>&1 &
-          sleep 30
-
-          npx expo run:ios --device "${SIMULATOR_NAME}" --no-bundler
-
-          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -type d -name "maestrocidemo.app" | grep "Debug-iphonesimulator" | head -n 1)
-          if [ -z "$APP_PATH" ]; then
-            echo "Could not find built maestrocidemo.app in DerivedData"
+          EXPO_PUBLIC_BASE_BACKEND_URL=http://127.0.0.1:9999 eas build --platform ios --profile maestro-ios-sim --non-interactive --wait --json > /tmp/eas-ios-build.json
+          IOS_BUILD_URL=$(node -e 'const fs=require("fs");const data=JSON.parse(fs.readFileSync("/tmp/eas-ios-build.json","utf8"));const out=Array.isArray(data)?data[0]:data;process.stdout.write(out?.artifacts?.buildUrl||"");')
+          if [ -z "$IOS_BUILD_URL" ]; then
+            echo "Could not parse iOS build URL from EAS response"
+            cat /tmp/eas-ios-build.json
             exit 1
           fi
-          echo "IOS_APP_PATH=$APP_PATH" >> $GITHUB_ENV
+          curl -fL "$IOS_BUILD_URL" -o /tmp/maestro-ios-sim.tar.gz
+          mkdir -p /tmp/maestro-ios
+          tar -xzf /tmp/maestro-ios-sim.tar.gz -C /tmp/maestro-ios
+          APP_PATH=$(find /tmp/maestro-ios -type d -name "*.app" | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Could not find .app bundle in downloaded iOS simulator archive"
+            exit 1
+          fi
+          echo "IOS_APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
+
+      - name: Start Expo bundler (iOS)
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          set -euxo pipefail
+          EXPO_NO_INTERACTIVE=1 EXPO_PUBLIC_BASE_BACKEND_URL=http://127.0.0.1:9999 nohup npx expo start --dev-client --host localhost > /tmp/expo-ios.log 2>&1 &
+          sleep 30
 
       - name: Install and launch iOS app on simulator
         working-directory: ${{ env.APP_DIR }}
@@ -241,6 +284,13 @@ jobs:
 
           xcrun simctl install "$SIMULATOR_UDID" "$IOS_APP_PATH"
           xcrun simctl launch "$SIMULATOR_UDID" com.timmyjose.maestrocidemo
+
+      - name: Collect iOS logs
+        if: always()
+        run: |
+          mkdir -p ${{ env.APP_DIR }}/maestro-artifacts
+          cp /tmp/eas-ios-build.json ${{ env.APP_DIR }}/maestro-artifacts/eas-ios-build.json || true
+          cp /tmp/expo-ios.log ${{ env.APP_DIR }}/maestro-artifacts/expo-ios.log || true
 
       - name: Run Maestro iOS test
         run: |
