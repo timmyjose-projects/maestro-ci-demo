@@ -72,7 +72,7 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
           set -euxo pipefail
-          EXPO_PUBLIC_BASE_BACKEND_URL=http://10.0.2.2:9999 eas build --platform android --profile maestro-android --non-interactive --wait --json > /tmp/eas-android-build.json
+          eas build --platform android --profile maestro-release-android --non-interactive --wait --json > /tmp/eas-android-build.json
           ANDROID_BUILD_URL=$(node -e 'const fs=require("fs");const data=JSON.parse(fs.readFileSync("/tmp/eas-android-build.json","utf8"));const out=Array.isArray(data)?data[0]:data;process.stdout.write(out?.artifacts?.buildUrl||"");')
           if [ -z "$ANDROID_BUILD_URL" ]; then
             echo "Could not parse Android build URL from EAS response"
@@ -127,9 +127,6 @@ jobs:
             adb shell getprop sys.boot_completed
             sleep 30
             adb devices
-            cd app/packages/demo && EXPO_PUBLIC_BASE_BACKEND_URL=http://10.0.2.2:9999 nohup npx expo start --dev-client --host localhost > /tmp/expo-android.log 2>&1 &
-            sleep 30
-            adb reverse tcp:8081 tcp:8081
             adb install -r /tmp/maestro-android.apk
             mkdir -p app/packages/demo/maestro-artifacts
             maestro --version
@@ -140,7 +137,7 @@ jobs:
         run: |
           mkdir -p ${{ env.APP_DIR }}/maestro-artifacts
           cp /tmp/eas-android-build.json ${{ env.APP_DIR }}/maestro-artifacts/eas-android-build.json || true
-          cp /tmp/expo-android.log ${{ env.APP_DIR }}/maestro-artifacts/expo-android.log || true
+          cp /tmp/calculator.log ${{ env.APP_DIR }}/maestro-artifacts/calculator.log || true
 
       - name: Upload Android artifacts
         if: always()
@@ -245,7 +242,7 @@ jobs:
         run: |
           set -euxo pipefail
 
-          EXPO_PUBLIC_BASE_BACKEND_URL=http://127.0.0.1:9999 eas build --platform ios --profile maestro-ios-sim --non-interactive --wait --json > /tmp/eas-ios-build.json
+          eas build --platform ios --profile maestro-release-ios-sim --non-interactive --wait --json > /tmp/eas-ios-build.json
           IOS_BUILD_URL=$(node -e 'const fs=require("fs");const data=JSON.parse(fs.readFileSync("/tmp/eas-ios-build.json","utf8"));const out=Array.isArray(data)?data[0]:data;process.stdout.write(out?.artifacts?.buildUrl||"");')
           if [ -z "$IOS_BUILD_URL" ]; then
             echo "Could not parse iOS build URL from EAS response"
@@ -262,13 +259,6 @@ jobs:
           fi
           echo "IOS_APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
 
-      - name: Start Expo bundler (iOS)
-        working-directory: ${{ env.APP_DIR }}
-        run: |
-          set -euxo pipefail
-          EXPO_NO_INTERACTIVE=1 EXPO_PUBLIC_BASE_BACKEND_URL=http://127.0.0.1:9999 nohup npx expo start --dev-client --host localhost > /tmp/expo-ios.log 2>&1 &
-          sleep 30
-
       - name: Install and launch iOS app on simulator
         working-directory: ${{ env.APP_DIR }}
         run: |
@@ -282,7 +272,7 @@ jobs:
         run: |
           mkdir -p ${{ env.APP_DIR }}/maestro-artifacts
           cp /tmp/eas-ios-build.json ${{ env.APP_DIR }}/maestro-artifacts/eas-ios-build.json || true
-          cp /tmp/expo-ios.log ${{ env.APP_DIR }}/maestro-artifacts/expo-ios.log || true
+          cp /tmp/calculator.log ${{ env.APP_DIR }}/maestro-artifacts/calculator.log || true
 
       - name: Run Maestro iOS test
         run: |

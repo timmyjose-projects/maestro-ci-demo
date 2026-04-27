@@ -26,6 +26,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
+      "usesCleartextTraffic": true,
       "package": "com.timmyjose.maestrocidemo"
     },
     "web": {
@@ -35,6 +36,19 @@
       "eas": {
         "projectId": "ae346dd2-44b0-45b1-a1ed-6dc7ca90eed8"
       }
-    }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ae346dd2-44b0-45b1-a1ed-6dc7ca90eed8"
+    },
+    "plugins": [
+      ["expo-build-properties", {
+        "android": {
+          "usesCleartextTraffic": true
+        }
+      }]
+    ]
   }
 }
