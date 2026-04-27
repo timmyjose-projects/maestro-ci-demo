@@ -23,6 +23,32 @@
         "simulator": true
       }
     },
+    "maestro-release-android": {
+      "autoIncrement": true,
+      "extends": "preview",
+      "channel": "maestro-dev",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_ENV_NAME": "maestro-dev",
+        "EXPO_PUBLIC_MAESTRO_DEV": "true",
+        "EXPO_PUBLIC_BASE_BACKEND_URL": "http://10.0.2.2:9999"
+      }
+    },
+    "maestro-release-ios-sim": {
+      "autoIncrement": true,
+      "extends": "preview",
+      "channel": "maestro-dev",
+      "ios": {
+        "simulator": true
+      },
+      "env": {
+        "EXPO_PUBLIC_ENV_NAME": "maestro-dev",
+        "EXPO_PUBLIC_MAESTRO_DEV": "true",
+        "EXPO_PUBLIC_BASE_BACKEND_URL": "http://127.0.0.1:9999"
+      }
+    },
     "preview": {
       "distribution": "internal"
     },
