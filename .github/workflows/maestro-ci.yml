@@ -137,6 +137,7 @@ jobs:
         run: |
           mkdir -p ${{ env.APP_DIR }}/maestro-artifacts
           cp /tmp/eas-android-build.json ${{ env.APP_DIR }}/maestro-artifacts/eas-android-build.json || true
+          cp /tmp/calculator.log ${{ env.APP_DIR }}/maestro-artifacts/calculator.log || true
 
       - name: Upload Android artifacts
         if: always()
@@ -271,6 +272,7 @@ jobs:
         run: |
           mkdir -p ${{ env.APP_DIR }}/maestro-artifacts
           cp /tmp/eas-ios-build.json ${{ env.APP_DIR }}/maestro-artifacts/eas-ios-build.json || true
+          cp /tmp/calculator.log ${{ env.APP_DIR }}/maestro-artifacts/calculator.log || true
 
       - name: Run Maestro iOS test
         run: |
